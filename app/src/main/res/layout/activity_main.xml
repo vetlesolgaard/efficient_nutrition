@@ -3,9 +3,10 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <fragment android:id="@+id/main_menu_fragment"
-              android:name="com.example.vetlesolgard.nutritrack.MainMenuFragment"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent" />
+    <fragment
+            android:id="@+id/main_menu_fragment"
+            android:name="com.example.vetlesolgard.nutritrack.MainMenuFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
 </LinearLayout>

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.content.Intent
+import com.example.vetlesolgard.nutritrack.recommendations.RecommendationActivity
 import com.example.vetlesolgard.nutritrack.snapmeal.SnapMealActivity
 
 class MainMenuFragment : Fragment() {
@@ -17,17 +18,20 @@ class MainMenuFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupMenuNavigation()
+    }
 
-        val snapMealButton = view.findViewById<Button>(R.id.snap_meal_button)
+    private fun setupMenuNavigation() {
+        val snapMealButton = view!!.findViewById<Button>(R.id.snap_meal_button)
         snapMealButton.setOnClickListener {
             val intent = Intent(context, SnapMealActivity::class.java)
             context?.startActivity(intent)
         }
 
-        val recommendationButton = view.findViewById<Button>(R.id.recommendations)
+        val recommendationButton = view!!.findViewById<Button>(R.id.recommendations)
         recommendationButton.setOnClickListener {
-
+            val intent = Intent(context, RecommendationActivity::class.java)
+            context?.startActivity(intent)
         }
-
     }
 }

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -14,11 +15,13 @@
             android:textSize="30sp"
             android:textColor="#000000"/>
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
             android:id="@+id/meal_image_view"
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:layout_margin="10dp"/>
+            android:layout_height="200dp"
+            android:layout_margin="10dp"
+            app:srcCompat="@drawable/ic_food_icon"
+    />
 
     <LinearLayout
             android:layout_width="match_parent"
@@ -31,22 +34,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/button2"
-                android:textSize="12sp"
-                android:layout_weight="1" />
+                android:textSize="18sp"
+                android:layout_weight="1"/>
 
         <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/snap_meal_button"
                 android:text="Snap meal"
-                android:textSize="14sp"
+                android:textSize="20sp"
                 android:layout_gravity="center"/>
         <Button
                 android:text="Type in weight"
+                android:id="@+id/type_in_weight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/button3"
-                android:textSize="12sp"
+                android:textSize="18sp"
                 android:layout_weight="1"/>
 
 
@@ -71,6 +74,7 @@
                     android:text="Calories (kJ/kcal)"/>
             <TextView
                     android:text="N/A"
+                    android:id="@+id/calories"
                     android:layout_gravity="right"/>
         </TableRow>
 
@@ -78,6 +82,7 @@
             <TextView
                     android:text="Protein"/>
             <TextView
+                    android:id="@+id/proteins"
                     android:text="N/A"
                     android:layout_gravity="right"/>
         </TableRow>
@@ -86,6 +91,7 @@
             <TextView
                     android:text="Fat"/>
             <TextView
+                    android:id="@+id/fats"
                     android:text="N/A"
                     android:layout_gravity="right"/>
         </TableRow>
@@ -94,6 +100,7 @@
             <TextView
                     android:text="Carbohydrates"/>
             <TextView
+                    android:id="@+id/carbohydrates"
                     android:text="N/A"
                     android:layout_gravity="right"/>
         </TableRow>

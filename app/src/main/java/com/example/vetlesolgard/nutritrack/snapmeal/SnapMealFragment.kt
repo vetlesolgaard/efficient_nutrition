@@ -1,32 +1,46 @@
 package com.example.vetlesolgard.nutritrack.snapmeal
 
-import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.Matrix
-import android.graphics.RectF
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
-import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.example.vetlesolgard.nutritrack.R
 import com.example.vetlesolgard.nutritrack.utils.CameraControlActivity
-import com.example.vetlesolgard.nutritrack.utils.CameraControlActivity.Companion.REQUEST_IMAGE_CAPTURE
 
 class SnapMealFragment : Fragment() {
 
     private var imageBitmap: Bitmap? = null
+    private var nutritionMap: MutableMap<String, List<String>> = mutableMapOf()
 
-    lateinit var imageClassifier: ImageClassifier
-    lateinit var mealTitleView: TextView
-    lateinit var mealImageView: ImageView
-    lateinit var nutritionTable: TableLayout
+    private lateinit var imageClassifier: ImageClassifier
+    private lateinit var mealTitleView: TextView
+    private lateinit var mealImageView: ImageView
+    private lateinit var nutritionTable: TableLayout
+
+    private lateinit var caloriesTextView: TextView
+    private lateinit var proteinsTextView: TextView
+    private lateinit var fatsTextView: TextView
+    private lateinit var carbohydratesTextView: TextView
+
+    private var caloriesNumber: Float = 0f
+    private var proteinsNumber: Float = 0f
+    private var fatsNumber: Float = 0f
+    private var carbohydratesNumber: Float = 0f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        nutritionMap["spaghetti bolognese"] = listOf("667", "35", "22", "84")
+        nutritionMap["french fries"] = listOf("480", "5.3", "23", "64")
+        nutritionMap["hamburger"] = listOf("540", "34", "27", "40")
+        nutritionMap["hot dog"] = listOf("155", "5.6", "14", "1.3")
+        nutritionMap["caesar salad"] = listOf("481", "10", "40", "23")
 
         imageClassifier = ImageClassifier(activity!!)
     }
@@ -38,8 +52,16 @@ class SnapMealFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        caloriesTextView = view.findViewById(R.id.calories)
+        proteinsTextView = view.findViewById(R.id.proteins)
+        fatsTextView = view.findViewById(R.id.fats)
+        carbohydratesTextView = view.findViewById(R.id.carbohydrates)
+
         mealTitleView = view.findViewById(R.id.snap_meal_title)
         mealImageView = view.findViewById(R.id.meal_image_view)
+
+//        val omelette= BitmapFactory.decodeResource(context!!.resources, R.drawable.omelette)
+//        mealImageView.setImageBitmap(omelette)
 
         val snapMealButton = view.findViewById<Button>(R.id.snap_meal_button)
         snapMealButton.setOnClickListener {
@@ -52,13 +74,31 @@ class SnapMealFragment : Fragment() {
             activity!!.onBackPressed()
         }
 
+        val input = EditText(context)
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        )
+        input.layoutParams = lp
+        val dialog = AlertDialog.Builder(context)
+            .setTitle("Type in weight of meal")
+            .setView(input)
+            .setPositiveButton("Submit") { dialog, _ ->
+                multiplyNutritionValues(input)
+            }
+            .create()
+
+        val typeInWeightButton = view.findViewById<Button>(R.id.type_in_weight)
+        typeInWeightButton.setOnClickListener {
+            dialog.show()
+        }
+
         nutritionTable = view.findViewById(R.id.nutrition_table)
     }
 
     override fun onResume() {
         super.onResume()
         if (imageBitmap != null) {
-            initializeNutritionTable(NUTRITION_LIST)
             mealImageView.setImageBitmap(imageBitmap)
         }
     }
@@ -68,7 +108,18 @@ class SnapMealFragment : Fragment() {
             imageBitmap = data.extras.get("bitmap") as Bitmap
             val label = imageClassifier.classifyFrame(imageBitmap as Bitmap)
             mealTitleView.text = label
+            setCurrentNutritionTable(label)
         }
+    }
+
+    private fun multiplyNutritionValues(input: EditText) {
+        val numberToMultiply = input.text.toString().toFloat() / ONE_SERVING_SPAGHETTI
+        val calories = caloriesNumber * numberToMultiply
+        val proteins= proteinsNumber * numberToMultiply
+        val fats = fatsNumber * numberToMultiply
+        val carbohydrates = carbohydratesNumber * numberToMultiply
+
+        setTextInNutritionTable(listOf(calories, proteins, fats, carbohydrates))
     }
 
     /**
@@ -77,58 +128,33 @@ class SnapMealFragment : Fragment() {
      * Need to make sure nutritionValues list are the
      * same length as the rows.
      */
-    private fun initializeNutritionTable(nutritionValues: List<String>) {
-        for (i in 0 until nutritionTable.childCount) {
-            val row = nutritionTable.getChildAt(i) as TableRow
-            for (j in 0 until row.childCount) {
-                if (j == 1) {
-                    val text = row.getChildAt(j) as TextView
-                    if (i == 0) {
-                        text.setText("${nutritionValues[i]} kJ/kcal")
-                    } else {
-                        text.setText("${nutritionValues[i]} g")
-                    }
-                }
-            }
-        }
+    private fun setCurrentNutritionTable(label: String) {
+        val currentNutrition = nutritionMap[label]!!
+        caloriesNumber = currentNutrition[0].toFloat()
+        proteinsNumber = currentNutrition[1].toFloat()
+        fatsNumber = currentNutrition[2].toFloat()
+        carbohydratesNumber = currentNutrition[3].toFloat()
+        setTextInNutritionTable(listOf(caloriesNumber, proteinsNumber, fatsNumber, carbohydratesNumber))
     }
 
-    /**
-     * Configures the necessary [android.graphics.Matrix] transformation to `textureView`. This
-     * method should be called after the camera preview size is determined in setUpCameraOutputs and
-     * also the size of `textureView` is fixed.
-     *
-     * @param viewWidth The width of `textureView`
-     * @param viewHeight The height of `textureView`
-     */
-//    private fun configureTransform(viewWidth: Int, viewHeight: Int) {
-//        val activity = activity
-//        if (null == textureView || null == previewSize || null == activity) {
-//            return
-//        }
-//        val rotation = activity.windowManager.defaultDisplay.rotation
-//        val matrix = Matrix()
-//        val viewRect = RectF(0f, 0f, viewWidth.toFloat(), viewHeight.toFloat())
-//        val bufferRect = RectF(0f, 0f, previewSize.getHeight().toFloat(), previewSize.getWidth().toFloat())
-//        val centerX = viewRect.centerX()
-//        val centerY = viewRect.centerY()
-//        if (Surface.ROTATION_90 == rotation || Surface.ROTATION_270 == rotation) {
-//            bufferRect.offset(centerX - bufferRect.centerX(), centerY - bufferRect.centerY())
-//            matrix.setRectToRect(viewRect, bufferRect, Matrix.ScaleToFit.FILL)
-//            val scale = Math.max(
-//                viewHeight.toFloat() / previewSize.getHeight(),
-//                viewWidth.toFloat() / previewSize.getWidth()
-//            )
-//            matrix.postScale(scale, scale, centerX, centerY)
-//            matrix.postRotate((90 * (rotation - 2)).toFloat(), centerX, centerY)
-//        } else if (Surface.ROTATION_180 == rotation) {
-//            matrix.postRotate(180f, centerX, centerY)
-//        }
-//        textureView.setTransform(matrix)
+    private fun setTextInNutritionTable(nutritionList: List<Float>) {
+        val nutritionStrings = nutritionList.map {
+            "%.1f".format(it)
+        }
+        caloriesTextView.text = "${nutritionStrings[0]} kJ/kcal"
+        proteinsTextView.text = "${nutritionStrings[1]} (g)"
+        fatsTextView.text = "${nutritionStrings[2]} (g)"
+        carbohydratesTextView.text = "${nutritionStrings[3]} (g)"
+    }
+
+    // Causes crash
+//    override fun onStop() {
+//        imageClassifier.close()
+//        super.onStop()
 //    }
 
     companion object {
         const val REQUEST_IMAGE_CAPTURE = 1
-        val NUTRITION_LIST = listOf("346", "20.3", "3.5", "2.6", "13.6")
+        const val ONE_SERVING_SPAGHETTI = 660
     }
 }

@@ -1,7 +1,6 @@
 package com.example.vetlesolgard.nutritrack.snapmeal
 
 import android.graphics.Bitmap
-import android.os.SystemClock
 import android.support.v4.app.FragmentActivity
 import org.tensorflow.lite.Interpreter
 import java.io.BufferedReader
@@ -15,25 +14,15 @@ import java.nio.channels.FileChannel
 
 class ImageClassifier(private val activity: FragmentActivity) {
 
-    /* Preallocated buffers for storing image data in. */
     private val intValues = IntArray(DIM_IMG_SIZE_X * DIM_IMG_SIZE_Y)
-
-    /** An instance of the driver class to run model inference with Tensorflow Lite.  */
     private var tflite: Interpreter? = null
     private var labelList: List<String> = loadLabelList()
 
     /** A ByteBuffer to hold image data, to be feed into Tensorflow Lite as inputs.  */
     private var imgData: ByteBuffer?
 
-    /** An array to hold inference results, to be feed into Tensorflow Lite as outputs.  */
     private var labelProbArray: Array<FloatArray>? = null
-    /** multi-stage low pass filter  */
     private var filterLabelProbArray: Array<FloatArray>? = null
-
-    /** What is this below?*/
-//    private val sortedLabels = PriorityQueue<Map<String, Float>>(
-//        RESULTS_TO_SHOW,
-//        Comparator<Any> { o1, o2 -> o1.value.compareTo(o2.value) })
 
     /**
      * Initializes the ImageClassifier
@@ -51,42 +40,12 @@ class ImageClassifier(private val activity: FragmentActivity) {
 
     /** Classifies a frame from the preview stream.  */
     fun classifyFrame(bitmap: Bitmap): String {
-//        if (tflite == null) {
-//            return "Uninitialized Classifier."
-//        }
         convertBitmapToByteBuffer(bitmap)
-        // Here's where the magic happens!!!
-        val startTime = SystemClock.uptimeMillis()
         tflite!!.run(imgData!!, labelProbArray!!)
-        val endTime = SystemClock.uptimeMillis()
 
-        // smooth the results
-        // applyFilter()
-
-        // print the results
-        var sortedLabels = getTopLabels()
+        val sortedLabels = getTopLabels()
         val topValue = sortedLabels.maxBy { it -> it.value }
         return topValue!!.key
-    }
-
-    private fun applyFilter() {
-        val num_labels = labelList.size
-
-        // Low pass filter `labelProbArray` into the first stage of the filter.
-        for (j in 0 until num_labels) {
-            filterLabelProbArray!![0][j] += FILTER_FACTOR * (labelProbArray!![0][j] - filterLabelProbArray!![0][j])
-        }
-        // Low pass filter each stage into the next.
-        for (i in 1 until FILTER_STAGES) {
-            for (j in 0 until num_labels) {
-                filterLabelProbArray!![i][j] += FILTER_FACTOR * (filterLabelProbArray!![i - 1][j] - filterLabelProbArray!![i][j])
-            }
-        }
-
-        // Copy the last stage filter output back to `labelProbArray`.
-        for (j in 0 until num_labels) {
-            labelProbArray!![0][j] = filterLabelProbArray!![FILTER_STAGES - 1][j]
-        }
     }
 
     /** Closes tflite to release resources.  */
@@ -129,7 +88,6 @@ class ImageClassifier(private val activity: FragmentActivity) {
         bitmap.getPixels(intValues, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
         // Convert the image to floating point.
         var pixel = 0
-        val startTime = SystemClock.uptimeMillis()
         for (i in 0 until DIM_IMG_SIZE_X) {
             for (j in 0 until DIM_IMG_SIZE_Y) {
                 val `val` = intValues[pixel++]
@@ -138,7 +96,6 @@ class ImageClassifier(private val activity: FragmentActivity) {
                 imgData!!.putFloat(((`val` and 0xFF) - IMAGE_MEAN) / IMAGE_STD)
             }
         }
-        val endTime = SystemClock.uptimeMillis()
     }
 
     /** Prints top labels, to be shown in UI as result. */
@@ -151,17 +108,13 @@ class ImageClassifier(private val activity: FragmentActivity) {
     }
 
     companion object {
-        private val FILTER_STAGES = 3
-        private val FILTER_FACTOR = 0.4f
+        private const val FILTER_STAGES = 3
 
         /** Name of the model file stored in Assets.  */
         private const val MODEL_PATH = "graph.lite"
 
         /** Name of the label file stored in Assets.  */
         private const val LABEL_PATH = "food_labels.txt"
-
-        /** Number of results to show in the UI.  */
-        private const val RESULTS_TO_SHOW = 3
 
         /** Dimensions of inputs.  */
         private const val DIM_BATCH_SIZE = 1
