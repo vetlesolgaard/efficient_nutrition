@@ -52,7 +52,6 @@
                 android:textSize="12sp"
                 android:layout_weight="1"/>
 
-
     </LinearLayout>
 
     <TextView

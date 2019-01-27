@@ -1,13 +1,11 @@
 package com.example.vetlesolgard.nutritrack.recommendations
 
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import com.example.vetlesolgard.nutritrack.R
 
 class RecommendationFragment : Fragment() {

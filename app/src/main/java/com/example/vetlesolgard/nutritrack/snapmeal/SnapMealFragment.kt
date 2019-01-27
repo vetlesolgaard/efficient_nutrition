@@ -60,9 +60,6 @@ class SnapMealFragment : Fragment() {
         mealTitleView = view.findViewById(R.id.snap_meal_title)
         mealImageView = view.findViewById(R.id.meal_image_view)
 
-//        val omelette= BitmapFactory.decodeResource(context!!.resources, R.drawable.omelette)
-//        mealImageView.setImageBitmap(omelette)
-
         val snapMealButton = view.findViewById<Button>(R.id.snap_meal_button)
         snapMealButton.setOnClickListener {
             val intent = Intent(context, CameraControlActivity::class.java)
@@ -71,6 +68,9 @@ class SnapMealFragment : Fragment() {
 
         val addButton = view.findViewById<Button>(R.id.add_button)
         addButton.setOnClickListener {
+            val intentResult = Intent()
+            intentResult.putExtra("", 0)
+            activity!!.setResult(0, intentResult)
             activity!!.onBackPressed()
         }
 
@@ -146,12 +146,6 @@ class SnapMealFragment : Fragment() {
         fatsTextView.text = "${nutritionStrings[2]} (g)"
         carbohydratesTextView.text = "${nutritionStrings[3]} (g)"
     }
-
-    // Causes crash
-//    override fun onStop() {
-//        imageClassifier.close()
-//        super.onStop()
-//    }
 
     companion object {
         const val REQUEST_IMAGE_CAPTURE = 1

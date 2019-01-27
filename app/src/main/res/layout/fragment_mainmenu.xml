@@ -5,12 +5,12 @@
                android:layout_width="match_parent"
                android:layout_height="match_parent">
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="200dp"
             android:layout_margin="20dp"
-            app:srcCompat="@drawable/ic_launcher_background"
-            android:id="@+id/imageView"
+            app:srcCompat="@drawable/graph0"
+            android:id="@+id/top_image"
             android:layout_weight="0.5" />
 
     <LinearLayout
