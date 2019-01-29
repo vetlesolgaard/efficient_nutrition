@@ -107,7 +107,8 @@ class SnapMealFragment : Fragment() {
         if (requestCode == CameraControlActivity.REQUEST_IMAGE_CAPTURE) {
             imageBitmap = data.extras.get("bitmap") as Bitmap
             val label = imageClassifier.classifyFrame(imageBitmap as Bitmap)
-            mealTitleView.text = label
+
+            mealTitleView.text = label.capitalize()
             setCurrentNutritionTable(label)
         }
     }
@@ -141,7 +142,7 @@ class SnapMealFragment : Fragment() {
         val nutritionStrings = nutritionList.map {
             "%.1f".format(it)
         }
-        caloriesTextView.text = "${nutritionStrings[0]} kJ/kcal"
+        caloriesTextView.text = "${nutritionStrings[0]} kcal"
         proteinsTextView.text = "${nutritionStrings[1]} (g)"
         fatsTextView.text = "${nutritionStrings[2]} (g)"
         carbohydratesTextView.text = "${nutritionStrings[3]} (g)"

@@ -71,7 +71,7 @@
 
         <TableRow>
             <TextView
-                    android:text="Calories (kJ/kcal)"/>
+                    android:text="Calories"/>
             <TextView
                     android:text="N/A"
                     android:id="@+id/calories"
